@@ -1,27 +1,24 @@
-from flask import Flask, request, jsonify
-import pandas as pd
-from mongo_config import get_database
-from models.data_model import create_transaction_document, create_passage_document
+# 🔧 FILE: mongodb_integration/api.py
 
-app = Flask(__name__)
+from fastapi import FastAPI, File, UploadFile
+import pandas as pd
+from mongodb_integration.mongo_config import get_database
+from mongodb_integration.models.data_model import create_transaction_document, create_passage_document
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
 db = get_database()
 
-@app.route("/upload/transaction", methods=["POST"])
-def upload_transaction():
-    file = request.files["file"]
-    df = pd.read_excel(file)
-    docs = [create_transaction_document(row) for index, row in df.iterrows()]
+@app.post("/upload/transaction")
+async def upload_transaction(file: UploadFile = File(...)):
+    df = pd.read_excel(file.file)
+    docs = [create_transaction_document(row) for _, row in df.iterrows()]
     db.transactions.insert_many(docs)
-    return jsonify({"status": "uploaded", "count": len(docs)})
+    return JSONResponse(content={"status": "uploaded", "count": len(docs)})
 
-@app.route("/upload/passage", methods=["POST"])
-def upload_passage():
-    file = request.files["file"]
-    df = pd.read_excel(file)
-    docs = [create_passage_document(row) for index, row in df.iterrows()]
+@app.post("/upload/passage")
+async def upload_passage(file: UploadFile = File(...)):
+    df = pd.read_excel(file.file)
+    docs = [create_passage_document(row) for _, row in df.iterrows()]
     db.passages.insert_many(docs)
-    return jsonify({"status": "uploaded", "count": len(docs)})
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
+    return JSONResponse(content={"status": "uploaded", "count": len(docs)})
