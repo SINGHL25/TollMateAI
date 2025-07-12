@@ -1,1 +1,6 @@
+# 🔧 FILE: ml_models/requirements.txt
 
+fastapi
+pandas
+openpyxl
+uvicorn
