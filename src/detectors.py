@@ -1,5 +1,5 @@
 # 🔧 FILE: src/detectors.py
-
+import pandas as pd  # 🔧 Add this line
 def detect_lpn_mismatch(df_passage):
     return df_passage[(df_passage['Front State Code'] != df_passage['Rear State Code']) &
                       (df_passage['Front State Code'].notna()) &
